@@ -52,6 +52,11 @@ local function OnEnterFarmZone(zone)
     -- Register ox_target interactions for fields in this zone
     RegisterFieldTargets(zone)
 
+    -- Register animal zone targets (troughs, barn) if loaded
+    if RegisterAnimalZoneTargets then
+        RegisterAnimalZoneTargets(zone)
+    end
+
     if Config.Debug then
         lib.notify({
             title = 'Farm Zone',
@@ -71,6 +76,11 @@ local function OnExitFarmZone(zone)
 
     -- Remove ox_target interactions
     UnregisterFieldTargets(zone)
+
+    -- Unregister animal zone targets if loaded
+    if UnregisterAnimalZoneTargets then
+        UnregisterAnimalZoneTargets(zone)
+    end
 
     currentFarmZone = nil
 

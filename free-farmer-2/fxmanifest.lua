@@ -26,6 +26,7 @@ client_scripts {
     'client/fields.lua',
     'client/planters.lua',
     'client/xp.lua',
+    'client/animals.lua',
 }
 
 server_scripts {
@@ -36,4 +37,5 @@ server_scripts {
     'server/xp.lua',
     'server/fields.lua',
     'server/planters.lua',
+    'server/animals.lua',
 }

@@ -733,10 +733,350 @@ Config.WeatherMap = {
 }
 
 -- =============================================================================
--- ANIMALS (Phase 3 — stub)
+-- ANIMALS (Phase 3)
 -- =============================================================================
+-- Simplified breeding: offspring auto-produced when herd/flock is kept in good
+-- condition for a sustained period. No gender pairing, no pregnancy tracking.
+-- Just reward consistent, attentive care with herd growth.
+--
+-- breeding.minHerdSize: adults needed in pen before auto-breeding can trigger
+-- breeding.healthThreshold: minimum health per adult animal
+-- breeding.wellKeptDuration: seconds of continuous good conditions required
+-- breeding.cooldown: seconds between births per pen
+-- breeding.offspringMin / offspringMax: number of offspring per birth event
 
-Config.Animals = {}
+Config.Animals = {
+    cow = {
+        label = 'Dairy Cow',
+        pedModel = 'a_c_cow',
+        purchasePrice = 2500,
+        unlockLevel = 5,
+
+        growthStages = {
+            { stage = 'calf',   label = 'Calf',      duration = 172800 }, -- 48h
+            { stage = 'heifer', label = 'Heifer',     duration = 259200 }, -- 72h
+            { stage = 'adult',  label = 'Adult Cow',  duration = nil },
+        },
+
+        production = {
+            type = 'milk',
+            item = 'raw_milk',
+            cycleTime = 43200, -- 12h between milking
+            baseYield = { min = 15, max = 25 },
+            qualityMultiplier = { poor = 0.7, average = 1.0, good = 1.2, excellent = 1.5 },
+        },
+
+        needs = {
+            feedItem = 'hay_bale',
+            feedAmount = 2,
+            feedInterval = 21600,  -- 6h
+            waterInterval = 21600,
+            alternativeFeed = { 'grain' },
+        },
+
+        health = {
+            baseDecay = 2,
+            sicknessThreshold = 30,
+            deathThreshold = 0,
+            hungerPenalty = 5,
+            thirstPenalty = 8,
+        },
+
+        breeding = {
+            minHerdSize = 2,
+            healthThreshold = 70,
+            wellKeptDuration = 172800, -- 48h
+            cooldown = 86400,          -- 24h between births
+            offspringMin = 1,
+            offspringMax = 1,
+        },
+
+        ai = {
+            behavior = 'grazing',
+            wanderSpeed = 1.0,
+            idleTime = { min = 5000, max = 15000 },
+        },
+
+        penSize = 5,
+        storageDecay = 5,            -- health loss per day while stored
+        storageSicknessTime = 259200, -- 3 days stored = sickness
+    },
+
+    chicken = {
+        label = 'Chicken',
+        pedModel = 'a_c_hen',
+        purchasePrice = 50,
+        unlockLevel = 1,
+
+        growthStages = {
+            { stage = 'chick', label = 'Chick',          duration = 86400 }, -- 24h
+            { stage = 'adult', label = 'Adult Chicken',   duration = nil },
+        },
+
+        production = {
+            type = 'eggs',
+            item = 'chicken_egg',
+            cycleTime = 28800, -- 8h
+            baseYield = { min = 1, max = 1 },
+            qualityMultiplier = { poor = 0.5, average = 1.0, good = 1.0, excellent = 1.0 },
+        },
+
+        needs = {
+            feedItem = 'chicken_feed',
+            feedAmount = 1,
+            feedInterval = 28800,  -- 8h
+            waterInterval = 28800,
+            alternativeFeed = { 'grain' },
+        },
+
+        health = {
+            baseDecay = 3,
+            sicknessThreshold = 40,
+            deathThreshold = 0,
+            hungerPenalty = 6,
+            thirstPenalty = 10,
+        },
+
+        breeding = {
+            minHerdSize = 3,
+            healthThreshold = 60,
+            wellKeptDuration = 172800, -- 48h
+            cooldown = 43200,          -- 12h
+            offspringMin = 1,
+            offspringMax = 3,
+        },
+
+        ai = {
+            behavior = 'pecking',
+            wanderSpeed = 1.2,
+            idleTime = { min = 3000, max = 8000 },
+        },
+
+        penSize = 20,
+        storageDecay = 8,
+        storageSicknessTime = 172800,
+    },
+
+    turkey = {
+        label = 'Turkey',
+        pedModel = 'a_c_chickenhawk', -- closest GTA V model
+        purchasePrice = 80,
+        unlockLevel = 8,
+
+        growthStages = {
+            { stage = 'poult', label = 'Poult',          duration = 129600 }, -- 36h
+            { stage = 'adult', label = 'Adult Turkey',    duration = nil },
+        },
+
+        production = {
+            type = 'eggs',
+            item = 'turkey_egg',
+            cycleTime = 43200, -- 12h
+            baseYield = { min = 1, max = 1 },
+            qualityMultiplier = { poor = 0.6, average = 1.0, good = 1.0, excellent = 1.0 },
+        },
+
+        needs = {
+            feedItem = 'chicken_feed',
+            feedAmount = 2,
+            feedInterval = 32400,  -- 9h
+            waterInterval = 32400,
+            alternativeFeed = { 'grain' },
+        },
+
+        health = {
+            baseDecay = 3,
+            sicknessThreshold = 35,
+            deathThreshold = 0,
+            hungerPenalty = 6,
+            thirstPenalty = 9,
+        },
+
+        breeding = {
+            minHerdSize = 3,
+            healthThreshold = 65,
+            wellKeptDuration = 172800, -- 48h
+            cooldown = 43200,          -- 12h
+            offspringMin = 1,
+            offspringMax = 2,
+        },
+
+        ai = {
+            behavior = 'pecking',
+            wanderSpeed = 1.1,
+            idleTime = { min = 4000, max = 10000 },
+        },
+
+        penSize = 15,
+        storageDecay = 7,
+        storageSicknessTime = 172800,
+    },
+
+    pig = {
+        label = 'Pig',
+        pedModel = 'a_c_pig',
+        purchasePrice = 400,
+        unlockLevel = 10,
+
+        growthStages = {
+            { stage = 'piglet', label = 'Piglet',      duration = 172800 }, -- 48h
+            { stage = 'grower', label = 'Grower Pig',   duration = 259200 }, -- 72h
+            { stage = 'adult',  label = 'Market Pig',   duration = nil },
+        },
+
+        production = {
+            type = 'none', -- Pigs raised for meat (external butcher system)
+            item = nil,
+            cycleTime = nil,
+            baseYield = nil,
+        },
+
+        needs = {
+            feedItem = 'pig_slop',
+            feedAmount = 3,
+            feedInterval = 21600,  -- 6h
+            waterInterval = 21600,
+            alternativeFeed = { 'grain' },
+        },
+
+        health = {
+            baseDecay = 2,
+            sicknessThreshold = 30,
+            deathThreshold = 0,
+            hungerPenalty = 6,
+            thirstPenalty = 8,
+        },
+
+        breeding = {
+            minHerdSize = 2,
+            healthThreshold = 70,
+            wellKeptDuration = 172800, -- 48h
+            cooldown = 86400,          -- 24h
+            offspringMin = 3,
+            offspringMax = 6,
+        },
+
+        ai = {
+            behavior = 'roaming',
+            wanderSpeed = 0.9,
+            idleTime = { min = 6000, max = 15000 },
+        },
+
+        penSize = 10,
+        storageDecay = 6,
+        storageSicknessTime = 259200,
+    },
+
+    goat = {
+        label = 'Goat',
+        pedModel = 'a_c_deer', -- Substitute model (deer silhouette)
+        purchasePrice = 350,
+        unlockLevel = 12,
+
+        growthStages = {
+            { stage = 'kid',   label = 'Kid',         duration = 129600 }, -- 36h
+            { stage = 'adult', label = 'Adult Goat',   duration = nil },
+        },
+
+        production = {
+            type = 'milk',
+            item = 'goat_milk',
+            cycleTime = 43200, -- 12h
+            baseYield = { min = 8, max = 15 },
+            qualityMultiplier = { poor = 0.7, average = 1.0, good = 1.2, excellent = 1.5 },
+        },
+
+        needs = {
+            feedItem = 'hay_bale',
+            feedAmount = 1,
+            feedInterval = 28800,  -- 8h
+            waterInterval = 28800,
+            alternativeFeed = { 'grain' },
+        },
+
+        health = {
+            baseDecay = 2,
+            sicknessThreshold = 35,
+            deathThreshold = 0,
+            hungerPenalty = 5,
+            thirstPenalty = 7,
+        },
+
+        breeding = {
+            minHerdSize = 2,
+            healthThreshold = 65,
+            wellKeptDuration = 172800, -- 48h
+            cooldown = 64800,          -- 18h
+            offspringMin = 1,
+            offspringMax = 2,
+        },
+
+        ai = {
+            behavior = 'grazing',
+            wanderSpeed = 1.1,
+            idleTime = { min = 4000, max = 12000 },
+        },
+
+        penSize = 8,
+        storageDecay = 6,
+        storageSicknessTime = 259200,
+    },
+
+    sheep = {
+        label = 'Sheep',
+        pedModel = 'a_c_cow', -- Substitute model (no native sheep in GTA V)
+        purchasePrice = 300,
+        unlockLevel = 15,
+
+        growthStages = {
+            { stage = 'lamb',  label = 'Lamb',         duration = 172800 }, -- 48h
+            { stage = 'adult', label = 'Adult Sheep',   duration = nil },
+        },
+
+        production = {
+            type = 'wool',
+            item = 'raw_wool',
+            cycleTime = 345600, -- 4 days
+            baseYield = { min = 3, max = 6 },
+            qualityMultiplier = { poor = 0.6, average = 1.0, good = 1.3, excellent = 1.6 },
+        },
+
+        needs = {
+            feedItem = 'hay_bale',
+            feedAmount = 2,
+            feedInterval = 28800,  -- 8h
+            waterInterval = 28800,
+            alternativeFeed = { 'grain' },
+        },
+
+        health = {
+            baseDecay = 2,
+            sicknessThreshold = 30,
+            deathThreshold = 0,
+            hungerPenalty = 5,
+            thirstPenalty = 7,
+        },
+
+        breeding = {
+            minHerdSize = 2,
+            healthThreshold = 65,
+            wellKeptDuration = 172800, -- 48h
+            cooldown = 64800,          -- 18h
+            offspringMin = 1,
+            offspringMax = 2,
+        },
+
+        ai = {
+            behavior = 'grazing',
+            wanderSpeed = 0.9,
+            idleTime = { min = 5000, max = 15000 },
+        },
+
+        penSize = 12,
+        storageDecay = 5,
+        storageSicknessTime = 259200,
+    },
+}
 
 -- =============================================================================
 -- PROCESSING (Phase 5 — stub)

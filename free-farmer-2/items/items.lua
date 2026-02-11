@@ -216,4 +216,76 @@
     description = 'Freshly picked Michigan blueberries.',
 },
 
+-- =============================================================================
+-- PHASE 3: Animal Feed
+-- =============================================================================
+
+['chicken_feed'] = {
+    label = 'Chicken Feed',
+    weight = 200,
+    stack = true,
+    close = true,
+    description = 'A bag of chicken feed — cracked corn and grain mix.',
+},
+
+['pig_slop'] = {
+    label = 'Pig Slop',
+    weight = 500,
+    stack = true,
+    close = true,
+    description = 'A bucket of pig slop — vegetable scraps and grain.',
+},
+
+['grain'] = {
+    label = 'Grain',
+    weight = 300,
+    stack = true,
+    close = true,
+    description = 'Mixed grain — universal livestock supplement.',
+},
+
+-- =============================================================================
+-- PHASE 3: Animal Products
+-- =============================================================================
+
+['raw_milk'] = {
+    label = 'Raw Milk',
+    weight = 500,
+    stack = true,
+    close = true,
+    description = 'Fresh raw cow milk — handle with care.',
+},
+
+['goat_milk'] = {
+    label = 'Goat Milk',
+    weight = 400,
+    stack = true,
+    close = true,
+    description = 'Fresh goat milk — creamy and nutritious.',
+},
+
+['chicken_egg'] = {
+    label = 'Chicken Egg',
+    weight = 60,
+    stack = true,
+    close = true,
+    description = 'A fresh farm egg.',
+},
+
+['turkey_egg'] = {
+    label = 'Turkey Egg',
+    weight = 80,
+    stack = true,
+    close = true,
+    description = 'A large turkey egg.',
+},
+
+['raw_wool'] = {
+    label = 'Raw Wool',
+    weight = 1000,
+    stack = true,
+    close = true,
+    description = 'Raw sheep wool — needs processing before use.',
+},
+
 ]]
