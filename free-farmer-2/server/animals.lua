@@ -163,20 +163,31 @@ CreateThread(function()
     while true do
         Wait(30000) -- Check every 30 seconds
 
+        -- Batch-fetch pen assignments for all spawned animals in one query
+        local uuids = {}
+        local entityMap = {}
         for uuid, data in pairs(spawnedAnimals) do
             if data.entity and DoesEntityExist(data.entity) then
-                local animal = MySQL.single.await(
-                    'SELECT pen_id FROM farm_animals WHERE animal_uuid = ?', { uuid }
-                )
+                uuids[#uuids + 1] = uuid
+                entityMap[uuid] = data.entity
+            end
+        end
 
-                if animal and animal.pen_id then
-                    local penConfig = Utils.GetPenConfig(animal.pen_id)
-                    if penConfig then
-                        local pos = GetEntityCoords(data.entity)
-                        if not Utils.IsPointInPolygon(pos, penConfig.polygon) then
-                            local center = Utils.GetPolygonCenter(penConfig.polygon)
-                            SetEntityCoords(data.entity, center.x, center.y, center.z, false, false, false, false)
-                            Utils.Debug('[Animals] Teleported escaped animal %s back to pen', uuid)
+        if #uuids > 0 then
+            -- Use state bag penId instead of DB query (already synced)
+            for _, uuid in ipairs(uuids) do
+                local entity = entityMap[uuid]
+                if entity and DoesEntityExist(entity) then
+                    local penId = Entity(entity).state.penId
+                    if penId and penId ~= '' then
+                        local penConfig = Utils.GetPenConfig(penId)
+                        if penConfig then
+                            local pos = GetEntityCoords(entity)
+                            if not Utils.IsPointInPolygon(pos, penConfig.polygon) then
+                                local center = Utils.GetPolygonCenter(penConfig.polygon)
+                                SetEntityCoords(entity, center.x, center.y, center.z, false, false, false, false)
+                                Utils.Debug('[Animals] Teleported escaped animal %s back to pen', uuid)
+                            end
                         end
                     end
                 end
@@ -360,9 +371,9 @@ CreateThread(function()
         end
 
         -- =====================================================================
-        -- GROWTH PROGRESSION
+        -- GROWTH PROGRESSION (single batch query instead of re-fetching)
         -- =====================================================================
-        local allAnimals = MySQL.query.await('SELECT * FROM farm_animals')
+        local allAnimals = MySQL.query.await('SELECT animal_uuid, animal_type, animal_name, age, growth_stage, owner_identifier FROM farm_animals')
 
         if allAnimals then
             for _, animal in ipairs(allAnimals) do
@@ -588,7 +599,7 @@ CreateThread(function()
                             { now, pen.id }
                         )
 
-                        -- Notify owner
+                        -- Notify owner and track progress
                         local ownerSrc = Utils.GetPlayerByCitizenId(ownerIdentifier)
                         if ownerSrc then
                             local desc = ('%d new %s born in %s!'):format(
@@ -603,6 +614,16 @@ CreateThread(function()
                                 title = 'New Offspring!',
                                 description = desc,
                             })
+
+                            -- Challenge progress
+                            if _G.UpdateChallengeProgress then
+                                _G.UpdateChallengeProgress(ownerSrc, 'breed', { count = offspringCount })
+                            end
+
+                            -- Leaderboard points
+                            if _G.UpdateLeaderboardScore then
+                                _G.UpdateLeaderboardScore(ownerIdentifier, 5 * offspringCount)
+                            end
                         end
 
                         Utils.Debug('[Breeding] Pen %s produced %d offspring (%d in pen, %d stored)',
@@ -848,6 +869,11 @@ lib.callback.register('free-farmer:server:feedAnimal', function(src, animalUuid)
     RefreshAnimalStateBags(animalUuid)
     AwardXP(src, 'feed_animal')
 
+    -- Challenge progress
+    if _G.UpdateChallengeProgress then
+        _G.UpdateChallengeProgress(src, 'feed_animal', {})
+    end
+
     return { success = true, animalLabel = animalConfig.label }
 end)
 
@@ -871,6 +897,11 @@ lib.callback.register('free-farmer:server:waterAnimal', function(src, animalUuid
 
     RefreshAnimalStateBags(animalUuid)
     AwardXP(src, 'water_animal')
+
+    -- Challenge progress
+    if _G.UpdateChallengeProgress then
+        _G.UpdateChallengeProgress(src, 'water_animal', {})
+    end
 
     return { success = true, animalLabel = animalConfig.label }
 end)
@@ -931,6 +962,20 @@ lib.callback.register('free-farmer:server:collectProduction', function(src, anim
             'UPDATE farm_player_data SET total_production_collected = total_production_collected + 1 WHERE identifier = ?',
             { citizenid }
         )
+    end
+
+    -- Challenge progress
+    if _G.UpdateChallengeProgress then
+        if prod.type == 'milk' then
+            _G.UpdateChallengeProgress(src, 'milk', { amount = finalYield })
+        elseif prod.type == 'eggs' then
+            _G.UpdateChallengeProgress(src, 'collect_eggs', { amount = finalYield })
+        end
+    end
+
+    -- Leaderboard points
+    if _G.UpdateLeaderboardScore and citizenid then
+        _G.UpdateLeaderboardScore(citizenid, 2)
     end
 
     return {
@@ -1033,6 +1078,13 @@ lib.callback.register('free-farmer:server:useFeedTrough', function(src, penId)
 
     AwardXP(src, 'feed_animal')
 
+    -- Challenge progress (count each animal as one care action)
+    if _G.UpdateChallengeProgress then
+        for _ = 1, #animals do
+            _G.UpdateChallengeProgress(src, 'feed_animal', {})
+        end
+    end
+
     return { success = true, count = #animals, animalType = penConfig.animalType }
 end)
 
@@ -1058,6 +1110,13 @@ lib.callback.register('free-farmer:server:useWaterTrough', function(src, penId)
     end
 
     AwardXP(src, 'water_animal')
+
+    -- Challenge progress (count each animal as one care action)
+    if _G.UpdateChallengeProgress then
+        for _ = 1, #animals do
+            _G.UpdateChallengeProgress(src, 'water_animal', {})
+        end
+    end
 
     return { success = true, count = #animals, animalType = penConfig.animalType }
 end)

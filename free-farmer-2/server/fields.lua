@@ -485,6 +485,11 @@ lib.callback.register('free-farmer:server:plantField', function(src, fieldId, cr
         ]], { citizenid })
     end
 
+    -- Challenge progress
+    if _G.UpdateChallengeProgress then
+        _G.UpdateChallengeProgress(src, 'plant', { count = 1 })
+    end
+
     Utils.Debug('Player %d planted %s in field %s', src, cropType, fieldId)
 
     return { success = true, cropLabel = cropConfig.label }
@@ -567,6 +572,16 @@ lib.callback.register('free-farmer:server:harvestField', function(src, fieldId)
             SET total_crops_harvested = total_crops_harvested + 1
             WHERE identifier = ?
         ]], { citizenid })
+    end
+
+    -- Challenge progress
+    if _G.UpdateChallengeProgress then
+        _G.UpdateChallengeProgress(src, 'harvest', { crop = cropConfig.harvestItem, amount = result.yield })
+    end
+
+    -- Leaderboard points
+    if _G.UpdateLeaderboardScore and citizenid then
+        _G.UpdateLeaderboardScore(citizenid, 1)
     end
 
     Utils.Debug('Player %d harvested %s from %s (yield: %d, quality: %s)',

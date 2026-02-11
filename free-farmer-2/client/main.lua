@@ -187,6 +187,114 @@ AddEventHandler('onResourceStop', function(resourceName)
 end)
 
 -- =============================================================================
+-- COMMANDS: /challenges, /farmleaderboard, /farmstatsme
+-- =============================================================================
+
+--- /challenges — View active farming challenges
+RegisterCommand('challenges', function()
+    local challenges = lib.callback.await('free-farmer:server:getChallenges', false)
+
+    if not challenges or #challenges == 0 then
+        lib.notify({ type = 'inform', description = 'No active challenges.' })
+        return
+    end
+
+    local Utils = _G.FarmClientUtils
+
+    local options = {}
+    for _, c in ipairs(challenges) do
+        local progressText
+        if c.completed then
+            progressText = 'COMPLETED'
+        else
+            progressText = ('%d / %d'):format(c.current, c.target)
+        end
+
+        local timeText = ''
+        if not c.completed and c.timeRemaining > 0 then
+            timeText = ' | Expires: ' .. Utils.FormatTime(c.timeRemaining)
+        end
+
+        local icon = c.completed and 'fa-solid fa-check-circle' or 'fa-solid fa-crosshairs'
+        local difficultyColors = { easy = '#33CC33', medium = '#CCCC33', hard = '#CC3333' }
+
+        options[#options + 1] = {
+            title = c.label,
+            description = ('%s | %s | +%d XP%s'):format(c.description, progressText, c.xpReward, timeText),
+            icon = icon,
+            iconColor = c.completed and '#33CC33' or (difficultyColors[c.difficulty] or '#FFFFFF'),
+        }
+    end
+
+    lib.registerContext({
+        id = 'ff_challenges',
+        title = 'Farming Challenges',
+        options = options,
+    })
+    lib.showContext('ff_challenges')
+end)
+
+--- /farmleaderboard [total|weekly|monthly] — View farming leaderboard
+RegisterCommand('farmleaderboard', function(_, args)
+    local period = args[1] or 'total'
+    if period ~= 'total' and period ~= 'weekly' and period ~= 'monthly' then
+        period = 'total'
+    end
+
+    local leaderboard = lib.callback.await('free-farmer:server:getLeaderboard', false, period)
+
+    if not leaderboard or #leaderboard == 0 then
+        lib.notify({ type = 'inform', description = 'Leaderboard is empty.' })
+        return
+    end
+
+    local periodLabels = { total = 'All Time', weekly = 'This Week', monthly = 'This Month' }
+
+    local options = {}
+    for _, entry in ipairs(leaderboard) do
+        options[#options + 1] = {
+            title = ('#%d %s'):format(entry.rank, entry.name),
+            description = ('Score: %d'):format(entry.score),
+            icon = entry.rank <= 3 and 'fa-solid fa-trophy' or 'fa-solid fa-user',
+            iconColor = entry.rank == 1 and '#FFD700' or (entry.rank == 2 and '#C0C0C0' or (entry.rank == 3 and '#CD7F32' or '#FFFFFF')),
+        }
+    end
+
+    lib.registerContext({
+        id = 'ff_leaderboard',
+        title = 'Farm Leaderboard — ' .. periodLabels[period],
+        options = options,
+    })
+    lib.showContext('ff_leaderboard')
+end)
+
+--- /farmstatsme — View your own farming stats
+RegisterCommand('farmstatsme', function()
+    local data = lib.callback.await('free-farmer:server:getPlayerFarmStats', false)
+
+    if not data then
+        lib.notify({ type = 'inform', description = 'No farming data yet. Start farming!' })
+        return
+    end
+
+    local lines = {
+        ('**Level:** %d'):format(data.level),
+        ('**XP:** %d'):format(data.xp),
+        ('**Crops Planted:** %d'):format(data.total_crops_planted),
+        ('**Crops Harvested:** %d'):format(data.total_crops_harvested),
+        ('**Production Collected:** %d'):format(data.total_production_collected),
+        ('**Challenges Completed:** %d'):format(data.total_challenges_completed),
+    }
+
+    lib.alertDialog({
+        header = 'My Farm Stats',
+        content = table.concat(lines, '  \n'),
+        centered = true,
+        cancel = false,
+    })
+end)
+
+-- =============================================================================
 -- EXPORTS FOR OTHER CLIENT FILES
 -- =============================================================================
 

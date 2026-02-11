@@ -288,4 +288,80 @@
     description = 'Raw sheep wool — needs processing before use.',
 },
 
+-- =============================================================================
+-- PHASE 5: Processed Goods
+-- =============================================================================
+
+['flour'] = {
+    label = 'Flour',
+    weight = 150,
+    stack = true,
+    close = true,
+    description = 'Finely milled wheat flour.',
+},
+
+['cornmeal'] = {
+    label = 'Cornmeal',
+    weight = 150,
+    stack = true,
+    close = true,
+    description = 'Ground cornmeal from field corn.',
+},
+
+['cheese_wheel'] = {
+    label = 'Cheese Wheel',
+    weight = 2000,
+    stack = true,
+    close = true,
+    description = 'A wheel of aged farm cheese.',
+},
+
+['goat_cheese'] = {
+    label = 'Goat Cheese',
+    weight = 500,
+    stack = true,
+    close = true,
+    description = 'Creamy goat cheese — tangy and rich.',
+},
+
+['butter'] = {
+    label = 'Butter',
+    weight = 250,
+    stack = true,
+    close = true,
+    description = 'Fresh churned farm butter.',
+},
+
+['apple_cider'] = {
+    label = 'Apple Cider',
+    weight = 500,
+    stack = true,
+    close = true,
+    description = 'Fresh-pressed Michigan apple cider.',
+},
+
+['dried_cranberries'] = {
+    label = 'Dried Cranberries',
+    weight = 80,
+    stack = true,
+    close = true,
+    description = 'Sun-dried Wisconsin cranberries.',
+},
+
+['dried_cherries'] = {
+    label = 'Dried Cherries',
+    weight = 80,
+    stack = true,
+    close = true,
+    description = 'Dried Michigan tart cherries.',
+},
+
+['processed_wool'] = {
+    label = 'Processed Wool',
+    weight = 600,
+    stack = true,
+    close = true,
+    description = 'Clean, carded wool ready for crafting.',
+},
+
 ]]

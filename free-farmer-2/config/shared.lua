@@ -1079,13 +1079,254 @@ Config.Animals = {
 }
 
 -- =============================================================================
--- PROCESSING (Phase 5 — stub)
+-- PROCESSING STATIONS (Phase 5)
 -- =============================================================================
+-- Each station has a location, level requirement, and recipes.
+-- Coordinates are placeholders — update to your map positions.
 
-Config.Processing = {}
+Config.ProcessingStations = {
+    {
+        id = 'grain_mill',
+        label = 'Grain Mill',
+        location = vec3(2025.0, 4810.0, 41.5),
+        blip = { sprite = 648, color = 46, scale = 0.6 },
+        prop = 'prop_generator_03b',
+        requiredLevel = 5,
+        recipes = {
+            {
+                id = 'wheat_to_flour',
+                label = 'Mill Flour',
+                input = 'wheat',
+                inputAmount = 10,
+                output = 'flour',
+                outputAmount = 8,
+                processingTime = 30000,
+                xpReward = 10,
+            },
+            {
+                id = 'corn_to_cornmeal',
+                label = 'Mill Cornmeal',
+                input = 'corn',
+                inputAmount = 10,
+                output = 'cornmeal',
+                outputAmount = 8,
+                processingTime = 30000,
+                xpReward = 10,
+            },
+        },
+    },
+    {
+        id = 'cheese_press',
+        label = 'Cheese Press',
+        location = vec3(2035.0, 4810.0, 41.5),
+        blip = { sprite = 648, color = 5, scale = 0.6 },
+        prop = 'prop_generator_03b',
+        requiredLevel = 10,
+        recipes = {
+            {
+                id = 'milk_to_cheese',
+                label = 'Press Cheese Wheel',
+                input = 'raw_milk',
+                inputAmount = 20,
+                output = 'cheese_wheel',
+                outputAmount = 1,
+                processingTime = 60000,
+                xpReward = 15,
+            },
+            {
+                id = 'goat_to_cheese',
+                label = 'Press Goat Cheese',
+                input = 'goat_milk',
+                inputAmount = 15,
+                output = 'goat_cheese',
+                outputAmount = 1,
+                processingTime = 60000,
+                xpReward = 15,
+            },
+        },
+    },
+    {
+        id = 'butter_churn',
+        label = 'Butter Churn',
+        location = vec3(2040.0, 4810.0, 41.5),
+        blip = { sprite = 648, color = 28, scale = 0.6 },
+        prop = 'prop_barrel_01a',
+        requiredLevel = 8,
+        recipes = {
+            {
+                id = 'milk_to_butter',
+                label = 'Churn Butter',
+                input = 'raw_milk',
+                inputAmount = 10,
+                output = 'butter',
+                outputAmount = 2,
+                processingTime = 45000,
+                xpReward = 12,
+            },
+        },
+    },
+    {
+        id = 'cider_press',
+        label = 'Cider Press',
+        location = vec3(2045.0, 4810.0, 41.5),
+        blip = { sprite = 648, color = 17, scale = 0.6 },
+        prop = 'prop_barrel_01a',
+        requiredLevel = 15,
+        recipes = {
+            {
+                id = 'apple_to_cider',
+                label = 'Press Apple Cider',
+                input = 'apple',
+                inputAmount = 15,
+                output = 'apple_cider',
+                outputAmount = 5,
+                processingTime = 40000,
+                xpReward = 12,
+            },
+        },
+    },
+    {
+        id = 'drying_rack',
+        label = 'Drying Rack',
+        location = vec3(2050.0, 4810.0, 41.5),
+        blip = { sprite = 648, color = 27, scale = 0.6 },
+        prop = 'prop_woodpile_02a',
+        requiredLevel = 12,
+        recipes = {
+            {
+                id = 'cranberries_dried',
+                label = 'Dry Cranberries',
+                input = 'cranberries',
+                inputAmount = 10,
+                output = 'dried_cranberries',
+                outputAmount = 6,
+                processingTime = 120000,
+                xpReward = 14,
+            },
+            {
+                id = 'cherries_dried',
+                label = 'Dry Cherries',
+                input = 'cherries',
+                inputAmount = 10,
+                output = 'dried_cherries',
+                outputAmount = 6,
+                processingTime = 120000,
+                xpReward = 14,
+            },
+        },
+    },
+    {
+        id = 'wool_processor',
+        label = 'Wool Processing',
+        location = vec3(2055.0, 4810.0, 41.5),
+        blip = { sprite = 648, color = 4, scale = 0.6 },
+        prop = 'prop_generator_03b',
+        requiredLevel = 20,
+        recipes = {
+            {
+                id = 'wool_to_processed',
+                label = 'Process Wool',
+                input = 'raw_wool',
+                inputAmount = 5,
+                output = 'processed_wool',
+                outputAmount = 4,
+                processingTime = 50000,
+                xpReward = 16,
+            },
+        },
+    },
+}
 
 -- =============================================================================
--- CHALLENGES (Phase 5 — stub)
+-- CHALLENGES (Phase 5)
 -- =============================================================================
+-- Daily challenge system. Players get 3 active challenges at a time.
+-- Completing challenges awards XP and leaderboard points.
 
-Config.Challenges = {}
+Config.Challenges = {
+    refreshInterval = 86400, -- 24 hours
+    maxActive = 3,
+
+    types = {
+        {
+            id = 'harvest_volume',
+            label = 'Harvest Challenge',
+            description = 'Harvest %d %s',
+            difficulty = 'easy',
+            xpReward = 100,
+            leaderboardPoints = 10,
+            generateRequirements = function()
+                local crops = { 'corn', 'soybeans', 'wheat', 'potato' }
+                local crop = crops[math.random(#crops)]
+                local amount = math.random(200, 500)
+                return { action = 'harvest', crop = crop, amount = amount }
+            end,
+        },
+        {
+            id = 'milk_production',
+            label = 'Dairy Production',
+            description = 'Collect %d milk',
+            difficulty = 'medium',
+            xpReward = 150,
+            leaderboardPoints = 15,
+            generateRequirements = function()
+                return { action = 'milk', amount = math.random(50, 150) }
+            end,
+        },
+        {
+            id = 'egg_collection',
+            label = 'Egg Collector',
+            description = 'Collect %d eggs',
+            difficulty = 'easy',
+            xpReward = 80,
+            leaderboardPoints = 8,
+            generateRequirements = function()
+                return { action = 'collect_eggs', amount = math.random(20, 60) }
+            end,
+        },
+        {
+            id = 'animal_care',
+            label = 'Animal Caretaker',
+            description = 'Feed or water animals %d times',
+            difficulty = 'medium',
+            xpReward = 120,
+            leaderboardPoints = 12,
+            generateRequirements = function()
+                return { action = 'care', amount = math.random(15, 40) }
+            end,
+        },
+        {
+            id = 'planting_spree',
+            label = 'Planting Spree',
+            description = 'Plant %d fields',
+            difficulty = 'easy',
+            xpReward = 90,
+            leaderboardPoints = 9,
+            generateRequirements = function()
+                return { action = 'plant', amount = math.random(5, 15) }
+            end,
+        },
+        {
+            id = 'processing_master',
+            label = 'Processing Master',
+            description = 'Process %d items at stations',
+            difficulty = 'medium',
+            xpReward = 140,
+            leaderboardPoints = 14,
+            generateRequirements = function()
+                return { action = 'process', amount = math.random(5, 15) }
+            end,
+        },
+        {
+            id = 'breeding_program',
+            label = 'Breeding Program',
+            description = 'Successfully breed %d animals',
+            difficulty = 'hard',
+            xpReward = 300,
+            leaderboardPoints = 30,
+            generateRequirements = function()
+                return { action = 'breed', amount = math.random(2, 5) }
+            end,
+        },
+    },
+}

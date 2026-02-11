@@ -128,3 +128,12 @@ CREATE TABLE IF NOT EXISTS `farm_leaderboard` (
     INDEX(`weekly_score`),
     INDEX(`monthly_score`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tracks farm zone ownership for admin assignment
+CREATE TABLE IF NOT EXISTS `farm_ownership` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `farm_zone` VARCHAR(50) NOT NULL UNIQUE,
+    `owner_identifier` VARCHAR(50) NOT NULL,
+    `assigned_at` INT DEFAULT NULL,
+    INDEX(`owner_identifier`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

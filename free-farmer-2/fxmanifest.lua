@@ -27,6 +27,7 @@ client_scripts {
     'client/planters.lua',
     'client/xp.lua',
     'client/animals.lua',
+    'client/processing.lua',
 }
 
 server_scripts {
@@ -38,4 +39,7 @@ server_scripts {
     'server/fields.lua',
     'server/planters.lua',
     'server/animals.lua',
+    'server/leaderboard.lua',
+    'server/challenges.lua',
+    'server/processing.lua',
 }
